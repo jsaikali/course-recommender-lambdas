@@ -15,16 +15,31 @@ Call it "lambda-s3-role"
 ### Function
 Open the Functions page on the Lambda console: https://console.aws.amazon.com/lambda/home#/functions  
 Choose Create function.  
+Use Python 3.6  
 On the Create function page, choose Use a blueprint.  
 Under Blueprints, enter s3 in the search box.   
 Choose s3-get-object-python.  
 Make sure to assign the "lambda-s3-role" to this function.  
 I called it "pullCourses"
 
+For testing, make a configuration using this json:
+```
+{
+  "part": "1"
+}
+```
+There will be two separate schedules, for part 1 and part 2.  
+
 ### Schedule
 Open the Rules page: https://console.aws.amazon.com/events/home?region=us-east-1#/rules
-Create a new rule called "pullCoursesFall" that points to Lambda "pullCourses" with cron schedule `0 4 * 3 ? *`
-Create a new rule called "pullCoursesSpring" that points to Lambda "pullCourses" with cron schedule `0 4 * 10 ? *`
+- Create a new rule called "pullCoursesFallPart1" that points to Lambda "pullCourses" with cron schedule `0 4 * 3 ? *` and with JSON constant {"part": "1"}  
+Create a new rule called "pullCoursesSpringPart1" that points to Lambda "pullCourses" with cron schedule `0 4 * 10 ? *` and with JSON constant {"part": "1"}  
+- Create a new rule called "pullCoursesFallPart2" that points to Lambda "pullCourses" with cron schedule `20 4 * 3 ? *` and with JSON constant {"part": "2"}  
+Create a new rule called "pullCoursesSpringPart2" that points to Lambda "pullCourses" with cron schedule `20 4 * 10 ? *` and with JSON constant {"part": "2"}  
+- Create a new rule called "pullCoursesFallCombine" that points to Lambda "pullCourses" with cron schedule `45 4 * 3 ? *` and with JSON constant {"part": "3"}  
+Create a new rule called "pullCoursesSpringCombine" that points to Lambda "pullCourses" with cron schedule `20 4 * 10 ? *` and with JSON constant {"part": "3"} 
+
+The jobs had to be split up to avoid the 15 minute Lambda limit.
 
 ## Download packages and unzip them
 These are the dependencies required. Put the unzipped contents the same directory as `lambda_function.py`
