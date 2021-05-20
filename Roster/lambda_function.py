@@ -195,11 +195,13 @@ def lambda_handler(event, context):
         roster = Roster(term, part)
         data = roster.extract_course_rosterv1()
         data = data.reset_index()
+        ourIds = data[['titleLong','description','crseId']].drop_duplicates(subset=['titleLong','description'], keep='first').rename(columns={"crseId":"ourId"})
+        data = data.merge(ourIds,on=['titleLong','description'],how="left")
 
-        json_data = json.loads(data.to_json(orient="records"))
+        # json_data = json.loads(data.to_json(orient="records"))
 
-        json_data = roster.add_our_id(json_data)
-        string = json.dumps(json_data)
+        # json_data = roster.add_our_id(json_data)
+        string = data.to_json(orient="records")
 
         encoded_string = string.encode("utf-8")
         s3.Bucket(bucket_name).put_object(Key=file_name, Body=encoded_string, ACL='public-read')
